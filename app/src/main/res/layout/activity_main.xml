@@ -6,11 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <CheckBox
+    <gohleng.apps.myapplication.widget.ThreeStateCheckBox
         android:id="@+id/cbSelectAll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimen_margin_default"
+        android:button="@drawable/vector_unchecked"
         android:minHeight="@dimen/dimen_height_default"
+        android:paddingStart="@dimen/dimen_margin_default"
+        android:paddingEnd="@dimen/dimen_margin_default"
         android:text="@string/str_select_all"
         android:textAllCaps="true"
         android:textColor="@color/colorPrimaryText"

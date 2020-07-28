@@ -13,7 +13,8 @@ import gohleng.apps.myapplication.widget.ThreeStateCheckBox
 class CheckboxExpandableListAdapter internal constructor(
     private val context: Context,
     private val listTitle: List<String>,
-    private val mapData: HashMap<String, List<ChildCheckBox>>
+    private val mapData: HashMap<String, List<ChildCheckBox>>,
+    private val listener: Listener
 ) : BaseExpandableListAdapter() {
 
     override fun getGroup(groupPosition: Int): Any {
@@ -137,14 +138,28 @@ class CheckboxExpandableListAdapter internal constructor(
         return this.listTitle.size
     }
 
-    fun isAllGroupSelected(): Boolean {
-        var checkedGroup: Int = 0
+    private fun getGroupSelectedCount(): Int {
+        var checkedGroup = 0
         for (x in 0 until groupCount) {
             if (getAllCheckedChildrenCount(x) == getChildrenCount(x)) {
                 checkedGroup++
             }
         }
-        return checkedGroup == groupCount
+        return checkedGroup
+    }
+
+    fun getGroupSelectedCountWithIndeterminate(): Int {
+        var checkedGroup = 0
+        for (x in 0 until groupCount) {
+            if (getAllCheckedChildrenCount(x) > 0) {
+                checkedGroup++
+            }
+        }
+        return checkedGroup
+    }
+
+    fun isAllGroupSelected() : Boolean {
+        return getGroupSelectedCount() == groupCount
     }
 
     fun selectAllChild(shouldSelect: Boolean) {
@@ -163,5 +178,14 @@ class CheckboxExpandableListAdapter internal constructor(
             child.setIsChecked(shouldSelect)
         }
         notifyDataSetChanged()
+    }
+
+    override fun notifyDataSetChanged() {
+        super.notifyDataSetChanged()
+        listener.onNotifyDataSetChanged()
+    }
+
+    interface Listener {
+        fun onNotifyDataSetChanged()
     }
 }
