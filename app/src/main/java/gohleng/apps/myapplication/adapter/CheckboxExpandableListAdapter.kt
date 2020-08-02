@@ -60,7 +60,7 @@ class CheckboxExpandableListAdapter internal constructor(
     }
 
     private fun initGroupCheckBoxState(cbItem: ThreeStateCheckBox, groupPosition: Int) {
-        val checkedChildren = getAllCheckedChildrenCount(groupPosition)
+        val checkedChildren = getCheckedChildrenCount(groupPosition)
         when {
             checkedChildren == 0 -> {
                 cbItem.setState(ThreeStateCheckBox.State.UNCHECKED)
@@ -74,19 +74,17 @@ class CheckboxExpandableListAdapter internal constructor(
         }
     }
 
-    private fun getAllCheckedChildrenCount(groupPosition: Int): Int {
-        var checkedChildren = 0
-        for (x in 0 until getChildrenCount(groupPosition)) {
-            val child = getChild(groupPosition, x)
-            if (child.isChecked()) {
-                checkedChildren++
-            }
-        }
-        return checkedChildren
-    }
-
     override fun getChildrenCount(groupPosition: Int): Int {
         return this.mapData[this.listTitle[groupPosition]]!!.size
+    }
+
+    fun getChildrenCount(): Int {
+        var childCount = 0
+        for (x in 0 until groupCount) {
+            childCount += getChildrenCount(x)
+        }
+
+        return childCount
     }
 
     override fun getChild(groupPosition: Int, childPosition: Int): ChildCheckBox {
@@ -122,10 +120,13 @@ class CheckboxExpandableListAdapter internal constructor(
         cbItem.setOnCheckedChangeListener(null)
 
         cbItem.text = child.getName()
-        cbItem.isChecked = child.isChecked()
+        if (cbItem.isChecked != child.isChecked()) {
+            cbItem.isChecked = child.isChecked()
+            cbItem.jumpDrawablesToCurrentState()
+        }
 
         cbItem.setOnCheckedChangeListener { _, isChecked ->
-            child.setIsChecked(isChecked)
+            if (child.isChecked() != isChecked) child.setIsChecked(isChecked)
             notifyDataSetChanged()
         }
     }
@@ -138,10 +139,34 @@ class CheckboxExpandableListAdapter internal constructor(
         return this.listTitle.size
     }
 
+    private fun getCheckedChildrenCount(groupPosition: Int): Int {
+        var checkedChildren = 0
+        for (x in 0 until getChildrenCount(groupPosition)) {
+            val child = getChild(groupPosition, x)
+            if (child.isChecked()) {
+                checkedChildren++
+            }
+        }
+        return checkedChildren
+    }
+
+    fun getAllCheckedChildrenCount(): Int {
+        var checkedChildren = 0
+        for (y in 0 until groupCount) {
+            for (x in 0 until getChildrenCount(y)) {
+                val child = getChild(y, x)
+                if (child.isChecked()) {
+                    checkedChildren++
+                }
+            }
+        }
+        return checkedChildren
+    }
+
     private fun getGroupSelectedCount(): Int {
         var checkedGroup = 0
         for (x in 0 until groupCount) {
-            if (getAllCheckedChildrenCount(x) == getChildrenCount(x)) {
+            if (getCheckedChildrenCount(x) == getChildrenCount(x)) {
                 checkedGroup++
             }
         }
@@ -151,14 +176,14 @@ class CheckboxExpandableListAdapter internal constructor(
     fun getGroupSelectedCountWithIndeterminate(): Int {
         var checkedGroup = 0
         for (x in 0 until groupCount) {
-            if (getAllCheckedChildrenCount(x) > 0) {
+            if (getCheckedChildrenCount(x) > 0) {
                 checkedGroup++
             }
         }
         return checkedGroup
     }
 
-    fun isAllGroupSelected() : Boolean {
+    fun isAllSelected(): Boolean {
         return getGroupSelectedCount() == groupCount
     }
 

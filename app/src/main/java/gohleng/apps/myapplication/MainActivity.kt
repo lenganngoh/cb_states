@@ -25,8 +25,8 @@ class MainActivity : AppCompatActivity() {
         adapter = CheckboxExpandableListAdapter(this, dataKeys as ArrayList<String>, Test.data,
             object : Listener {
                 override fun onNotifyDataSetChanged() {
-                    when (adapter!!.getGroupSelectedCountWithIndeterminate()) {
-                        adapter!!.groupCount -> {
+                    when (adapter!!.getAllCheckedChildrenCount()) {
+                        adapter!!.getChildrenCount() -> {
                             cbSelectAll.setState(ThreeStateCheckBox.State.CHECKED)
                         }
                         0 -> {
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initializeListViewSelector() {
         cbSelectAll.setOnClickListener {
-            adapter!!.selectAllChild(!adapter!!.isAllGroupSelected())
+            adapter!!.selectAllChild(!adapter!!.isAllSelected())
             adapter!!.notifyDataSetChanged()
         }
     }
